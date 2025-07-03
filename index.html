@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Countdown Timer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      body {
+        background: linear-gradient(to bottom right, #1e3c72, #2a5298);
+        color: #fff;
+        font-family: "Segoe UI", sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        flex-direction: column;
+        transition: background-color 0.3s ease;
+      }
+
+      h1 {
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+      }
+
+      #timer {
+        font-size: 4rem;
+        font-weight: bold;
+        background: #ffffff10;
+        padding: 30px 50px;
+        border-radius: 20px;
+        transition: 0.3s ease;
+      }
+
+      .blink {
+        animation: blink-bg 0.5s alternate infinite;
+      }
+
+      @keyframes blink-bg {
+        0% {
+          background-color: #ff0000;
+          color: #fff;
+        }
+        100% {
+          background-color: #ffffff10;
+          color: #ff0000;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>⏳ Countdown Timer</h1>
+    <div id="timer">Loading...</div>
+
+    <!-- Beep Sound -->
+    <audio id="beepSound">
+      <source src="aman.wav" type="audio/wav" />
+    </audio>
+
+    <script>
+      const timerEl = document.getElementById("timer");
+      const beepSound = document.getElementById("beepSound");
+
+      // 🔧 SET YOUR TARGET TIME BELOW (24-hour format)
+      const targetTime = new Date("2025-07-03T18:23:00").getTime();
+
+      const countdown = setInterval(() => {
+        const now = new Date().getTime();
+        const distance = targetTime - now;
+
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        if (distance <= 0) {
+          clearInterval(countdown);
+          timerEl.innerText = "⏰ Time's up!";
+          timerEl.classList.add("blink");
+
+          // 🔊 Play the sound
+          beepSound.play().catch(() => {}); // ignore autoplay block
+
+          // 📡 Send Discord webhook
+          fetch("YOUR_DISCORD_WEBHOOK_URL", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ content: "⏰ Timer ended!" }),
+          });
+
+          return;
+        }
+
+        timerEl.innerText = `${minutes}m ${seconds}s`;
+      }, 1000);
+    </script>
+  </body>
+</html>
